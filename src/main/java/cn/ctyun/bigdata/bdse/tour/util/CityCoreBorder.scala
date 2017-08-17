@@ -1,8 +1,13 @@
 package cn.ctyun.bigdata.bdse.tour.util
 
 
+import java.util
+
 import org.apache.spark.{SparkConf, SparkContext}
 import cn.ctyun.bigdata.bdse.common.algorithm.grid.{Grid, GridNeighbour}
+
+import scala.collection.JavaConversions._
+import scala.collection.mutable.ListBuffer
 /**
   * Created by 98726 on 2017/8/15.
   */
@@ -33,11 +38,19 @@ object CityCoreBorder {
       )
     }).cache()
 
-    cacheRDD3.map(x=> (x._2 + "-" + x._1,1)).union(cacheRDD3.map(x=> (x._1 + "-" + x._2,1)))
+    val map = cacheRDD3.map(x=> (x._2 + "-" + x._1,1)).union(cacheRDD3.map(x=> (x._1 + "-" + x._2,1)))
       .reduceByKey(_+_)
-      .filter(_._2==2)
-      .map(x=>(x._1.split("-")(0),x._2)).r.saveAsTextFile("spark-common/bjwork3")
+      .filter(_._2==2).map(x=>(x._1.split("-")(0),x._1.split("-")(1))).groupByKey().collectAsMap()
 
+    val hashmap = new util.HashMap[String, util.ArrayList[String]]
+    map.foreach(x=>{
+      val list = new util.ArrayList[String]
+      x._2.foreach(list.add)
+      hashmap.put(x._1,list)
+    })
+    //print(hashmap)
+    val hash2 = CityCoreBorderCluster.main(hashmap)
+    //print(hash2.get("116470039870040"))
 
 
     /*//中心点经纬度
