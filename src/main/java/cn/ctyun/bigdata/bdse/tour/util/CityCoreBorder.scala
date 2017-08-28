@@ -16,7 +16,7 @@ object CityCoreBorder {
     val conf = new SparkConf ().setAppName ("AggregateOperator")
     conf.set("spark.master", "local")
     val sc = new SparkContext (conf)
-    val rdd = sc.textFile ("spark-common/bjwork2")
+    val rdd = sc.textFile ("spark-common/wuhanwork2")
     val cacheRDD = rdd.map(x => (x.split("\t")(0),x.split("\t")(1).toInt)).cache()
 
     //总的网格数
